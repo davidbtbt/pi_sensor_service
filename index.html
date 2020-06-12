@@ -1,82 +1,82 @@
 <!DOCTYPE html>
 
 <html>
-	<head>
-		<meta charset="utf-8" name="viewport" content="width=device-width" />
-		<title>
-			Raspberry Pi Status
-		</title>
-		<!-- Socket.io import the module I have in the project -->
-		<script src="/socket.io/socket.io.js"></script>
-		<!-- Javascript Highcharts import the file directly from your server -->
-		<script src="http://code.highcharts.com/highcharts.js"></script>
-		<script src="https://code.highcharts.com/modules/boost.js"></script>
-		<script src="https://code.highcharts.com/modules/exporting.js"></script>
-	</head>
-	<body>
-		<!--  'll have the div where the graph. I tell it that the width of the 
+  <head>
+    <meta charset="utf-8" name="viewport" content="width=device-width" />
+    <title>
+      Raspberry Pi Status
+    </title>
+    <!-- Socket.io import the module I have in the project -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Javascript Highcharts import the file directly from your server -->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/boost.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  </head>
+  <body>
+    <!--  'll have the div where the graph. I tell it that the width of the 
          screen is 100% and the height is 400px -->
-		<div id="chart" style="width:100%; height: 100%; min-height:600px; "></div>
-		<!-- Javascript Begins -->
-		<script>
-			// I create a WebSocket . Put the IP of your Raspberry Pi!
-			const socket = io.connect('http://192.168.1.31:8080');
+    <div id="chart" style="width:100%; height: 100%; min-height:600px; "></div>
+    <!-- Javascript Begins -->
+    <script>
+      // I create a WebSocket . Put the IP of your Raspberry Pi!
+      const socket = io.connect('http://192.168.1.31:8080');
 
-			// I create a new object 'Chart'
-			const chart = new Highcharts.Chart({
-				global: {
-					//timezoneOffset: 8 * 60
-					useUTC: false
-				},
-				chart: {
-					renderTo: 'chart',
-					defaultSeriesType: 'spline' //,
+      // I create a new object 'Chart'
+      const chart = new Highcharts.Chart({
+        global: {
+          //timezoneOffset: 8 * 60
+          useUTC: false
+        },
+        chart: {
+          renderTo: 'chart',
+          defaultSeriesType: 'spline' //,
 
-					//            height: (9 / 16 * 90) + '%' // 16:9 ratio
-				},
-				boost: {
-					useGPUTranslations: true
-				},
-				rangeSelector: {
-					selected: 100
-				},
-				title: {
-					text: 'MQ Sensors Raspberry Pi'
-				},
-				xAxis: {
-					type: 'datetime',
-					tickPixelInterval: 150,
-					minRange: 20 * 1000
-				},
-				yAxis: {
-					minPadding: 0.2,
-					maxPadding: 0.2,
-					title: {
-						text: null, //'Analog',
-						margin: 80
-					}
-				},
-				legend: {
-					align: 'right',
-					itemMarginTop: 10,
-					itemMarginBottom: 10,
-					verticalAlign: 'top',
-					layout: 'vertical',
-					x: 0,
-					y: 100
-				},
-				series: [{ name: 'mq7 (Carbon Monoxide)', data: [] }]
-			});
+          //            height: (9 / 16 * 90) + '%' // 16:9 ratio
+        },
+        boost: {
+          useGPUTranslations: true
+        },
+        rangeSelector: {
+          selected: 100
+        },
+        title: {
+          text: 'MQ Sensors Raspberry Pi'
+        },
+        xAxis: {
+          type: 'datetime',
+          tickPixelInterval: 150,
+          minRange: 20 * 1000
+        },
+        yAxis: {
+          minPadding: 0.2,
+          maxPadding: 0.2,
+          title: {
+            text: null, //'Analog',
+            margin: 80
+          }
+        },
+        legend: {
+          align: 'right',
+          itemMarginTop: 10,
+          itemMarginBottom: 10,
+          verticalAlign: 'top',
+          layout: 'vertical',
+          x: 0,
+          y: 100
+        },
+        series: [{ name: 'mq7 (Carbon Monoxide)', data: [] }]
+      });
 
-			socket.on('sensorUpdate', function(time, data) {
-				const mq = data.split(',');
+      socket.on('sensorUpdate', function(time, data) {
+        const mq = data.split(',');
 
-				for (var i = 0; i < mq.length; i++) {
-					var shift = chart.series[i].points.length > 230;
-					chart.series[i].addPoint([time, parseInt(mq[i])], false, shift);
-				}
-				chart.redraw();
-			});
-		</script>
-	</body>
+        for (var i = 0; i < mq.length; i++) {
+          var shift = chart.series[i].points.length > 230;
+          chart.series[i].addPoint([time, parseInt(mq[i])], false, shift);
+        }
+        chart.redraw();
+      });
+    </script>
+  </body>
 </html>

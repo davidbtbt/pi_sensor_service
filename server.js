@@ -32,65 +32,65 @@ server.listen(8080, () => console.log('Iot BT server listening on port 8080!'));
 app.get('/', (req, res) => res.send('Bedroom dehumidifier and Sensors.'));
 
 app.get('/sensors/mq7', (req, res) => {
-	res.send(mq7_value.toString());
+  res.send(mq7_value.toString());
 });
 
 app.get('/plots/mq7', (req, res) => {
-	res.sendfile(__dirname + '/index.html');
+  res.sendfile(__dirname + '/index.html');
 });
 
 app.get('/sensors/temperature', (req, res) => {
-	const readout = dht.read();
-	const raw_temp = readout.temperature.toFixed(1);
-	const temperature = (raw_temp * 9) / 5 + 32;
-	//console.log("Temperature " + temperature.toFixed(1));
-	res.send(temperature.toFixed(1).toString());
+  const readout = dht.read();
+  const raw_temp = readout.temperature.toFixed(1);
+  const temperature = (raw_temp * 9) / 5 + 32;
+  //console.log("Temperature " + temperature.toFixed(1));
+  res.send(temperature.toFixed(1).toString());
 });
 
 app.get('/sensors/humidity', (req, res) => {
-	const readout = dht.read();
-	const humidity = readout.humidity.toFixed(1);
-	//console.log("Humidity " + humidity);
-	res.send(humidity);
+  const readout = dht.read();
+  const humidity = readout.humidity.toFixed(1);
+  //console.log("Humidity " + humidity);
+  res.send(humidity);
 });
 
 app.get('/switches/humidifier', (req, res) => {
-	res.send(humidifier_state);
+  res.send(humidifier_state);
 });
 
 app.post('/switches/humidifier', (req, res) => {
-	//set gpio on
-	const param_state = req.body.toString().trim();
-	console.log('set humidifier ' + param_state);
-	if (param_state === 'ON') {
-		//console.log("humidifier " + param_state)
-		humidifier_state = param_state;
-		rpio.write(humidifier_pin_left, rpio.LOW);
-		rpio.write(humidifier_pin_right, rpio.LOW);
-	} else if (param_state === 'OFF') {
-		//console.log("humidifier " + param_state)
-		humidifier_state = param_state;
-		rpio.write(humidifier_pin_left, rpio.HIGH);
-		rpio.write(humidifier_pin_right, rpio.HIGH);
-	} else {
-		console.log('unsupported status : ' + param_state);
-	}
+  //set gpio on
+  const param_state = req.body.toString().trim();
+  console.log('set humidifier ' + param_state);
+  if (param_state === 'ON') {
+    //console.log("humidifier " + param_state)
+    humidifier_state = param_state;
+    rpio.write(humidifier_pin_left, rpio.LOW);
+    rpio.write(humidifier_pin_right, rpio.LOW);
+  } else if (param_state === 'OFF') {
+    //console.log("humidifier " + param_state)
+    humidifier_state = param_state;
+    rpio.write(humidifier_pin_left, rpio.HIGH);
+    rpio.write(humidifier_pin_right, rpio.HIGH);
+  } else {
+    console.log('unsupported status : ' + param_state);
+  }
 });
 
 let sendData = false;
 
 serialParser.on('data', function(data) {
-	if (sendData) {
-		//console.log(data);
-		if (data < 1024) {
-			mq7_value = data;
-		}
-		const date = new Date().getTime();
-		io.emit('sensorUpdate', date, mq7_value);
-	}
+  if (sendData) {
+    //console.log(data);
+    if (data < 1024) {
+      mq7_value = data;
+    }
+    const date = new Date().getTime();
+    io.emit('sensorUpdate', date, mq7_value);
+  }
 });
 
 io.sockets.on('connection', function(socket) {
-	//console.log(data);
-	sendData = true;
+  //console.log(data);
+  sendData = true;
 });
